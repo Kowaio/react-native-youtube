@@ -54,6 +54,7 @@ public class YouTubeView extends FrameLayout {
     protected void onDetachedFromWindow() {
         if (getReactContext().getCurrentActivity() != null) {
             FragmentManager fragmentManager = getReactContext().getCurrentActivity().getFragmentManager();
+            getReactContext().getCurrentActivity().setRequestedOrientation(1);
 
             // Code crashes with java.lang.IllegalStateException: Activity has been destroyed
             // if our activity has been destroyed when this runs
@@ -151,6 +152,10 @@ public class YouTubeView extends FrameLayout {
         event.putBoolean("isFullscreen", isFullscreen);
         event.putInt("target", getId());
         reactContext.getJSModule(RCTEventEmitter.class).receiveEvent(getId(), "fullscreen", event);
+
+        if (reactContext.getCurrentActivity() != null && isFullscreen) {
+          reactContext.getCurrentActivity().setRequestedOrientation(0);
+        }
     }
 
     public void setApiKey(String apiKey) {
@@ -182,6 +187,12 @@ public class YouTubeView extends FrameLayout {
     }
 
     public void setFullscreen(boolean bool) {
+        WritableMap event = Arguments.createMap();
+        ReactContext reactContext = getReactContext();
+        event.putBoolean("isFullscreen", bool);
+        event.putInt("target", getId());
+        reactContext.getJSModule(RCTEventEmitter.class).receiveEvent(getId(), "fullscreen", event);
+
         mYouTubeController.setFullscreen(bool);
     }
 
